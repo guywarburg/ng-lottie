@@ -1,15 +1,26 @@
-import { Component, Input, OnInit, Output, EventEmitter, ViewChild, ElementRef, PLATFORM_ID } from '@angular/core';
-import { isPlatformBrowser, isPlatformServer } from '@angular/common';
+import {
+    Component,
+    Input,
+    Inject,
+    OnInit,
+    Output,
+    EventEmitter,
+    ViewChild,
+    ElementRef,
+    PLATFORM_ID
+} from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 
 declare let require: any;
 
 @Component({
     selector: 'lottie-animation-view',
-    template: `<ng-container *ngIf="isBrowser">
-               <div #lavContainer 
-                    [ngStyle]="{'width': viewWidth, 'height': viewHeight, 'overflow':'hidden', 'margin': '0 auto'}">    
-               </div>
-            </ng-container>`
+    template: `
+        <ng-container *ngIf="isBrowser">
+            <div #lavContainer
+                 [ngStyle]="{'width': viewWidth, 'height': viewHeight, 'overflow':'hidden', 'margin': '0 auto'}">
+            </div>
+        </ng-container>`
 })
 
 export class LottieAnimationViewComponent implements OnInit {
@@ -25,11 +36,12 @@ export class LottieAnimationViewComponent implements OnInit {
     public viewHeight: string;
     private _options: any;
     private bodymovin: any;
-    
-    constructor(@Inject(PLATFORM_ID) private platformId) {
+    private isBrowser: boolean;
+
+    constructor(@Inject(PLATFORM_ID) private platformId: any) {
         this.isBrowser = isPlatformBrowser(platformId);
-        if (this.isBrowser) { 
-            this.bodymovin: any = require('bodymovin/build/player/bodymovin.js');
+        if (this.isBrowser) {
+            this.bodymovin = require('bodymovin/build/player/bodymovin.js');
         }
     }
 
@@ -48,7 +60,7 @@ export class LottieAnimationViewComponent implements OnInit {
         this.viewWidth = this.width + 'px' || '100%';
         this.viewHeight = this.height + 'px' || '100%';
 
-        if (this.isBrowser) { 
+        if (this.isBrowser) {
             let anim: any = this.bodymovin.loadAnimation(this._options);
             this.animCreated.emit(anim);
         }
