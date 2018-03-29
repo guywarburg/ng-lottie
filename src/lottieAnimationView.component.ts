@@ -1,11 +1,15 @@
-import { Component, Input, OnInit, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, OnInit, Output, EventEmitter, ViewChild, ElementRef, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser, isPlatformServer } from '@angular/common';
+
 declare let require: any;
 
 @Component({
     selector: 'lottie-animation-view',
-    template: `<div #lavContainer 
+    template: `<ng-container *ngIf="isBrowser">
+               <div #lavContainer 
                     [ngStyle]="{'width': viewWidth, 'height': viewHeight, 'overflow':'hidden', 'margin': '0 auto'}">    
-               </div>`
+               </div>
+            </ng-container>`
 })
 
 export class LottieAnimationViewComponent implements OnInit {
@@ -20,15 +24,16 @@ export class LottieAnimationViewComponent implements OnInit {
     public viewWidth: string;
     public viewHeight: string;
     private _options: any;
+    private bodymovin: any;
     
     constructor(@Inject(PLATFORM_ID) private platformId) {
         this.isBrowser = isPlatformBrowser(platformId);
+        if (this.isBrowser) { 
+            this.bodymovin: any = require('bodymovin/build/player/bodymovin.js');
+        }
     }
 
     ngOnInit() {
-        if (this.isBrowser) { 
-            const bodymovin: any = require('bodymovin/build/player/bodymovin.js');
-        }
         this._options = {
             container: this.lavContainer.nativeElement,
             renderer: 'svg',
@@ -44,7 +49,7 @@ export class LottieAnimationViewComponent implements OnInit {
         this.viewHeight = this.height + 'px' || '100%';
 
         if (this.isBrowser) { 
-            let anim: any = bodymovin.loadAnimation(this._options);
+            let anim: any = this.bodymovin.loadAnimation(this._options);
             this.animCreated.emit(anim);
         }
     }
